@@ -1,0 +1,17 @@
+{
+    "MSFT": {
+        "name": "Microsoft",
+        "valuesObj": [],
+        "normValues": []
+    },
+    "AMZN": {
+        "name": "Amazon",
+        "valuesObj": [],
+        "normValues": []
+    },
+    "AAPL": {
+        "name": "Apple",
+        "valuesObj": [],
+        "normValues": []
+    }
+};
