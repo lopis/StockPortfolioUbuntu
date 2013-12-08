@@ -74,8 +74,9 @@ Rectangle {
                 var i = 0;
                 for(var tickName in DataFile.portfolio) {
                     tickList.model.append(DataFile.portfolio[tickName]);
+                    console.log("Added count: " + tickList.model.get(i).valuesObj.count);
                 }
-                console.log("List count: " + tickList.height);
+                console.log("List count: " + tickList.model.count);
             });
         }
     }

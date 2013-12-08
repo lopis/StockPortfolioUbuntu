@@ -1,81 +1,78 @@
-if(typeof thiFileIsDefined === 'undefined') {
-    // portfolio contains objects like
-    //    MSFT: {
-    //      name: Microsoft
-    //      valuesObj: []   // Simple array with normalized values that will be drawn
-    //    }
-    // valuesObj contains objects like
-    //    { date:  2013-10-18
-    //      open:  10.0
-    //      high:  10.0
-    //      low:   10.0
-    //      close: 10.0
-    //    }
-    var portfolio = {
-        "MSFT": {
-            "name": "Microsoft",
-            "tickName": "MSFT",
-            "valuesObj": [],
-            "raisedPercent": 0,
-            "normValues": []
-        },
-        "AMZN": {
-            "name": "Amazon",
-            "tickName": "AMZN",
-            "valuesObj": [],
-            "raisedPercent": 0,
-            "normValues": []
-        },
-        "AAPL": {
-            "name": "Apple",
-            "tickName": "AAPL",
-            "valuesObj": [],
-            "raisedPercent": 0,
-            "normValues": []
-        }
-    };
-
-    // for now, contains normalized values to be drawn in the chart.
-    // should be local or a parameter, or an object {tickName => values[]}
-    // var values = [];
-
-    var plotHeight = 280; // hack. should be a parameter
-
-    // max and min value calculated for the chart
-    var max = 0.0;
-    var min = 999999999;
-
-    var isReady = false;    // is true if the plot data is up to date
-    var isBusy = false;     // is true if the plot is being updated
-
-    // This queue will contain the tick names to be fetched.
-    // Use push(tickName) and pop(tickName) to add and get/remove values.
-    var schedule = [];
-
-    var dateRange = {
-
+// portfolio contains objects like
+//    MSFT: {
+//      name: Microsoft
+//      valuesObj: []   // Simple array with normalized values that will be drawn
+//    }
+// valuesObj contains objects like
+//    { date:  2013-10-18
+//      open:  10.0
+//      high:  10.0
+//      low:   10.0
+//      close: 10.0
+//    }
+var portfolio = {
+    "MSFT": {
+        "name": "Microsoft",
+        "tickName": "MSFT",
+        "valuesObj": [],
+        "raisedPercent": 0,
+        "normValues": []
+    },
+    "AMZN": {
+        "name": "Amazon",
+        "tickName": "AMZN",
+        "valuesObj": [],
+        "raisedPercent": 0,
+        "normValues": []
+    },
+    "AAPL": {
+        "name": "Apple",
+        "tickName": "AAPL",
+        "valuesObj": [],
+        "raisedPercent": 0,
+        "normValues": []
     }
+};
 
-    var afterReadyCall;
-}
+// for now, contains normalized values to be drawn in the chart.
+// should be local or a parameter, or an object {tickName => values[]}
+// var values = [];
 
-function normalizeValues(tickName) {
+var plotHeight = 280; // hack. should be a parameter
+
+// max and min value calculated for the chart
+var max = 0.0;
+var min = 999999999;
+
+var isReady = false;    // is true if the plot data is up to date
+var isBusy = false;     // is true if the plot is being updated
+
+// This queue will contain the tick names to be fetched.
+// Use push(tickName) and pop(tickName) to add and get/remove values.
+var schedule = [];
+
+var afterReadyCall;
+
+// The normalized Values currently being drawn
+var normValues = [];
+
+function normalizeValues(valuesObj) {
     // console.log("ValuesObj size: " + portfolio[tickName].valuesObj.length)
-    for (var i = 0; i < portfolio[tickName].valuesObj.length; i++) {
-        if (portfolio[tickName].valuesObj[i].close > max) {
-            max = portfolio[tickName].valuesObj[i].close;
+    for (var i = 0; i < valuesObj.count; i++) {
+        if (valuesObj.get(i).close > max) {
+            max = valuesObj.get(i).close;
         }
-        if (portfolio[tickName].valuesObj[i].close < min) {
-            min = portfolio[tickName].valuesObj[i].close;
+        if (valuesObj.get(i).close < min) {
+            min = valuesObj.get(i).close;
         }
     }
     // console.log("max: " + max);
     // console.log("min: " + min);
 
     if (max > 0) {
-        for (i = 0; i < portfolio[tickName].valuesObj.length; i++) {
+        for (i = 0; i < valuesObj.count; i++) {
             // Converts the values to a scale of [0, plotHeight]
-            portfolio[tickName].normValues.push(plotHeight * (portfolio[tickName].valuesObj[i].close-min) / (max-min));
+            normValues.push(plotHeight * (valuesObj.get(i).close-min) / (max-min));
         }
     }
     // console.log("NormValues size: " + portfolio[tickName].normValues.length)
@@ -132,7 +129,9 @@ function parseCSV(tickName, csvString) {
         quote["close"] = parseFloat(lineArray[4]);
         portfolio[tickName].valuesObj.push(quote);
     }
-    portfolio[tickName].raisedPercent = (portfolio[tickName].valuesObj[0].close/portfolio[tickName].valuesObj[1].close).toFixed(2);
+    var curVal = portfolio[tickName].valuesObj[0].close;
+    var oldVal = portfolio[tickName].valuesObj[1].close;
+    portfolio[tickName].raisedPercent = (100*(curVal-oldVal)/oldVal).toFixed(2);
     // console.log(tickName + ": Parsed " + portfolio[tickName].valuesObj.length + " new values");
 }
 
