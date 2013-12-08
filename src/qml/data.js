@@ -38,7 +38,7 @@ var portfolio = {
 // should be local or a parameter, or an object {tickName => values[]}
 // var values = [];
 
-var plotHeight = 280; // hack. should be a parameter
+//var plotHeight = 280; // hack. should be a parameter
 
 // max and min value calculated for the chart
 var max = 0.0;
@@ -54,9 +54,11 @@ var schedule = [];
 var afterReadyCall;
 
 // The normalized Values currently being drawn
+// This is an array of floats
+// Each array represents a series in the plot
 var normValues = [];
 
-function normalizeValues(valuesObj) {
+function normalizeValues(valuesObj, plotHeight) {
     // console.log("ValuesObj size: " + portfolio[tickName].valuesObj.length)
     for (var i = 0; i < valuesObj.count; i++) {
         if (valuesObj.get(i).close > max) {
@@ -69,13 +71,14 @@ function normalizeValues(valuesObj) {
     // console.log("max: " + max);
     // console.log("min: " + min);
 
+    var values= [];
     if (max > 0) {
         for (i = 0; i < valuesObj.count; i++) {
             // Converts the values to a scale of [0, plotHeight]
-            normValues.push(plotHeight * (valuesObj.get(i).close-min) / (max-min));
+            values.push(plotHeight * (valuesObj.get(i).close-min) / (max-min));
         }
     }
-    // console.log("NormValues size: " + portfolio[tickName].normValues.length)
+    normValues.push(values);
 }
 
 // Temporary method

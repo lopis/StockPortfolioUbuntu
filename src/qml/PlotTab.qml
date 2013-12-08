@@ -9,11 +9,12 @@ Tab {
     Page {
         id: plotPage
         width: parent.width
+        property int plotHeight: 280
 
         Component.onCompleted: {
             console.log("Loading " + mainLoader.tickName);
             console.log(tickListModel.get(0).tickName);
-            DataFile.normalizeValues(tickListModel.get(0).valuesObj);
+            DataFile.normalizeValues(tickListModel.get(0).valuesObj, plotHeight);
         }
 
         Column {
@@ -24,7 +25,7 @@ Tab {
             Canvas {
                 id:canvas
                 width: root.width
-                height: 280
+                height: plotPage.plotHeight
                 antialiasing: true
 
                 property string strokeStyle: "green"
