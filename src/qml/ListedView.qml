@@ -44,23 +44,23 @@ Rectangle {
                 onClicked: {
                     mainLoader.tickName = tickName;
                     mainLoader.source = "TabbedView.qml";
-
                 }
             }
         }
 
-//        Column {
-//            id: pageLayout
-//            width: parent.width
-//            Button {
-//                width: units.gu(12)
-//                text: "Load Chart"
-//                onClicked: pageLoader.source = "TabbedView.qml"
-//            }
-//        }
+        ActivityIndicator {
+            id: activityIndicator
+            running: true
+            visible: running
+            anchors.centerIn: parent
+        }
 
         Component.onCompleted: {
-            DataFile.getData(function(){});
+            tickList.visible = false;
+            DataFile.getData(tickList.model, function(){
+                activityIndicator.running = false;
+                tickList.visible = true;
+            });
         }
     }
 

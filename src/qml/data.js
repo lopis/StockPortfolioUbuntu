@@ -1,38 +1,6 @@
-// portfolio contains objects like
-//    MSFT: {
-//      name: Microsoft
-//      valuesObj: []   // Simple array with normalized values that will be drawn
-//    }
-// valuesObj contains objects like
-//    { date:  2013-10-18
-//      open:  10.0
-//      high:  10.0
-//      low:   10.0
-//      close: 10.0
-//    }
-var portfolio = {
-    "MSFT": {
-        "name": "Microsoft",
-        "tickName": "MSFT",
-        "valuesObj": [],
-        "raisedPercent": 0,
-        "normValues": []
-    },
-    "AMZN": {
-        "name": "Amazon",
-        "tickName": "AMZN",
-        "valuesObj": [],
-        "raisedPercent": 0,
-        "normValues": []
-    },
-    "AAPL": {
-        "name": "Apple",
-        "tickName": "AAPL",
-        "valuesObj": [],
-        "raisedPercent": 0,
-        "normValues": []
-    }
-};
+// Keeps a pointer to the listModel to allow
+// assync return of values.
+var portfolio = {listModel: {}};
 
 var defaultNames = "MSFT,Microsoft;AMZN,Amazon;AAPL,Apple";
 
@@ -77,9 +45,11 @@ function normalizeValues(valuesObj, plotHeight) {
     normValues.push(values);
 }
 
-// Temporary method
-function getData(afterReady) {
-    // console.log("Parent width:" + root.width);
+/*
+ * Will populate the listModel with
+ */
+function getData(listModel, afterReady) {
+    portfolio.listModel = listModel;
     afterReadyCall = afterReady;
     // Load the data from the file or server.
     var monthBegin = 9;
@@ -89,7 +59,10 @@ function getData(afterReady) {
     var dayEnd = 1;
     var yearEnd = 2013;
 
-    for (var tickName in portfolio){
+    console.log("Model count: " + portfolio.listModel.count);
+    for (var tickID = 0; tickID < portfolio.listModel.count; tickID++){
+        console.log("TickID: " + tickID);
+        var tickName = portfolio.listModel.get(tickID).tickName; //FIXME: is fixName defined?
         var url = ["http://ichart.finance.yahoo.com/table.txt?",
         "a=", 		monthBegin,
         "&b=", 		dayBegin,
@@ -98,48 +71,26 @@ function getData(afterReady) {
         "&e=", 		dayEnd,
         "&f=", 		yearEnd,
         "&g=d&s=", 	tickName].join("");
-        loadData(tickName, url);
+        loadData(tickID, url);
     }
 }
 
-function loadData(tickName, url) {
+function loadData(tickID, url) {
     if (!isBusy) {
         isBusy = true;
         console.log("url: " + url);
-        getValues(tickName, url);
+        getValues(tickID, url);
     } else {
-        schedule.push([tickName, url]);
+        schedule.push([tickID, url]);
     }
 }
 
-function parseCSV(tickName, csvString) {
-    // console.log("Parsing");
-    var linesArray = csvString.split("\n");
-    // console.log(tickName + ": Array size: " + linesArray.length);
-
-    // Starts in line=1 to ignore CSV header
-    for (var line = 1; line < linesArray.length-1; line++) {
-        var lineArray = linesArray[line].split(",");
-        var quote = {};
-        quote["date"]  = lineArray[0];
-        quote["open"]  = parseFloat(lineArray[1]);
-        quote["high"]  = parseFloat(lineArray[2]);
-        quote["low"]   = parseFloat(lineArray[3]);
-        quote["close"] = parseFloat(lineArray[4]);
-        portfolio[tickName].valuesObj.push(quote);
-    }
-    var curVal = portfolio[tickName].valuesObj[0].close;
-    var oldVal = portfolio[tickName].valuesObj[1].close;
-    portfolio[tickName].raisedPercent = (100*(curVal-oldVal)/oldVal).toFixed(2);
-    // console.log(tickName + ": Parsed " + portfolio[tickName].valuesObj.length + " new values");
-}
-
-function getValues(tickName, url) {
+function getValues(tickID, url) {
     var doc = new XMLHttpRequest(); // Used for XML, but works for plain text or CSV
     doc.onreadystatechange = function() {
         if (doc.readyState === XMLHttpRequest.DONE) {
-            parseCSV(tickName, doc.responseText);
-
+            parseCSV(tickID, doc.responseText);
+            // console.log(doc.responseText);
             isBusy = false;
 
             if (schedule.length > 0){
@@ -156,4 +107,23 @@ function getValues(tickName, url) {
     doc.open("get", url);
     doc.setRequestHeader("Content-Encoding", "UTF-8");
     doc.send();
+}
+
+function parseCSV(tickID, csvString) {
+    var linesArray = csvString.split("\n");
+
+    // Starts in line=1 to ignore CSV header
+    for (var line = 1; line < linesArray.length-1; line++) {
+        var lineArray = linesArray[line].split(",");
+        var quote = {};
+        quote["date"]  = lineArray[0];
+        quote["open"]  = parseFloat(lineArray[1]);
+        quote["high"]  = parseFloat(lineArray[2]);
+        quote["low"]   = parseFloat(lineArray[3]);
+        quote["close"] = parseFloat(lineArray[4]);
+        portfolio.listModel.get(tickID).valuesObj.append(quote);
+    }
+    var curVal = portfolio.listModel.get(tickID).valuesObj.get(0).close;
+    var oldVal = portfolio.listModel.get(tickID).valuesObj.get(1).close;
+    portfolio.listModel.get(tickID).raisedPercent = (100*(curVal-oldVal)/oldVal).toFixed(2);
 }

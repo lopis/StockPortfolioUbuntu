@@ -46,13 +46,13 @@ MainView {
 
             var readValues = readString.split(";");
             for (var value in readValues) {
-                console.log(value);
+                // console.log("Value: '" + readValues[value] + "'");
                 var splitValue = readValues[value].split(",");
                 var newTick = {};
                 newTick["name"] = splitValue[1];
                 newTick["tickName"] = splitValue[0];
                 newTick["valuesObj"] = [];
-                newTick["raisedPercent"] = 0;
+                newTick["raisedPercent"] = "";
                 newTick["normValues"] = [];
                 tickListModel.append(newTick);
                 console.log(JSON.stringify(newTick));
@@ -67,7 +67,7 @@ MainView {
             root.width = units.gu(66);
             root.height = units.gu(106);
         }
-        dataFile.parse();
+        dataFile.parse(); // Parse portfolio meta data from local file
         console.log(root.height);
         mainLoader.source = "ListedView.qml";
     }
