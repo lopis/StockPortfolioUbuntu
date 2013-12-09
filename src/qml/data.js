@@ -34,11 +34,7 @@ var portfolio = {
     }
 };
 
-// for now, contains normalized values to be drawn in the chart.
-// should be local or a parameter, or an object {tickName => values[]}
-// var values = [];
-
-//var plotHeight = 280; // hack. should be a parameter
+var defaultNames = "MSFT,Microsoft;AMZN,Amazon;AAPL,Apple";
 
 // max and min value calculated for the chart
 var max = 0.0;

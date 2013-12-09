@@ -1,7 +1,6 @@
 import QtQuick 2.0
 import Ubuntu.Components 0.1
 import Ubuntu.Components.ListItems 0.1 as ListItem
-import FileIO 1.0
 import "data.js" as DataFile
 
 Rectangle {
@@ -60,24 +59,8 @@ Rectangle {
 //            }
 //        }
 
-//        FileIO {
-//            id: myFile
-//            source: "/home/phablet/.cache/com.ubuntu.joao.StockPortfolioCpp/my_file.txt"
-//            onError: console.log(msg)
-//        }
-
         Component.onCompleted: {
-//            console.log("WRITE: " + myFile.source)
-//            console.log( "WRITE: "+ myFile.write("TEST"));
-//            myText.text =  myFile.read();
-            DataFile.getData(function(){
-                var i = 0;
-                for(var tickName in DataFile.portfolio) {
-                    tickList.model.append(DataFile.portfolio[tickName]);
-                    console.log("Added count: " + tickList.model.get(i).valuesObj.count);
-                }
-                console.log("List count: " + tickList.model.count);
-            });
+            DataFile.getData(function(){});
         }
     }
 
