@@ -22,8 +22,11 @@ var afterReadyCall;
 // Each array represents a series in the plot
 var normValues = [];
 
+// Pointer to the status text
+var status;
+
 function normalizeValues(valuesObj) {
-    var plotHeight = 300;
+    var plotHeight = 280; // Hack :/
     // console.log("ValuesObj size: " + portfolio[tickName].valuesObj.length)
     for (var i = 0; i < valuesObj.count; i++) {
         if (valuesObj.get(i).close > max) {
@@ -91,6 +94,7 @@ function getValues(tickID, url) {
 
             if (doc.responseText === "") {
                 console.log("Connection failed, trying again in 1s.")
+                statusText.text = "Connection failed";
                 return false;
             }
 
@@ -116,7 +120,7 @@ function getValues(tickID, url) {
 
 function parseCSV(tickID, csvString) {
     var linesArray = csvString.split("\n");
-
+    statusText.text = "Parsing: " + portfolio.listModel.get(tickID).tickName;
     // Starts in line=1 to ignore CSV header
     for (var line = 1; line < linesArray.length-1; line++) {
         var lineArray = linesArray[line].split(",");

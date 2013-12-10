@@ -1,6 +1,8 @@
 import QtQuick 2.0
 import Ubuntu.Components 0.1
 import FileIO 1.0
+import Ubuntu.Components.ListItems 0.1 as ListItem
+import Ubuntu.Components.Popups 0.1
 import "data.js" as DataJS
 
 MainView {
@@ -31,6 +33,12 @@ MainView {
             id: tickListModel
         }
 
+        Text {
+            id: statusText
+            text : "< No Status >"
+            visible: true
+        }
+
         Page {
             id: mainPage
             title: "Stocks Portfolio"
@@ -53,8 +61,69 @@ MainView {
                     iconSource: Qt.resolvedUrl("graphics/button_edit.svg")
                     text: "Manage"
                     onTriggered: {
-                        buttonEdit.iconSource = Qt.resolvedUrl("graphics/button_add.svg");
+                        PopupUtils.open(popoverComponent, buttonEdit)
                     }
+                }
+            }
+
+            Component {
+                id: popoverComponent
+                Popover {
+                    id: popover
+                    Column {
+                        id: containerLayout
+                        anchors {
+                            left: parent.left
+                            top: parent.top
+                            right: parent.right
+                        }
+                        ListItem.Header {
+                            text: "Manage Portfolio"
+                        }
+                        ListItem.SingleControl {
+                            pressed: false
+                            control: Text {
+                                text: "Remove One"
+                            }
+                            onClicked: {
+                                PopupUtils.open(removeDialog)
+                            }
+                        }
+                        ListItem.SingleControl {
+                            pressed: false
+                            control: Text {
+                                text: "Remove All"
+                            }
+                            onClicked: {
+                                tickListModel.clear()
+                            }
+                        }
+                        ListItem.SingleControl {
+                            pressed: false
+                            control: Text {
+                                text: "Close"
+                            }
+                            onClicked: {
+                                PopupUtils.close(popover)
+                            }
+                        }
+                    }
+                }
+            }
+
+            Component {
+                id: removeDialog
+                ComposerSheet {
+                    id: dialogue
+                    height: parent.height
+                    width: parent.height
+                    title: "Remove from Tick List"
+
+
+                    Label {
+                        text: "Select the ones that should be removed from the list below."
+                    }
+                    ListEditDialog {}
                 }
             }
 
@@ -65,12 +134,7 @@ MainView {
     }
 
     Component.onCompleted: {
-        if (parent) {
-            root.anchors.fill = parent;
-        } else {
-            root.width = units.gu(66);
-            root.height = units.gu(106);
-        }
+        statusText.text = "Main completed"
     }
 
 }

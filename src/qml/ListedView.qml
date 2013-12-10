@@ -36,11 +36,12 @@ Rectangle {
     FileIO {
         id: dataFile
         source: "/home/phablet/.cache/com.ubuntu.joao.StockPortfolioCpp/data"
-        onError: console.log(msg)
+        onError: statusText.text = msg
         function parse() {
             var readString = read();
-            if (readString === "") {
+            if (readString === "" || !readString) {
                 // File empty or not read. Use default values.
+                statusText.text = "User data file not found. Using default."
                 readString = DataJS.defaultNames;
             }
 
@@ -54,20 +55,22 @@ Rectangle {
                 newTick["valuesObj"] = [];
                 newTick["raisedPercent"] = "";
                 newTick["normValues"] = [];
-                newTick["tickID"] = value;
+                newTick["tickID"] = parseInt(value);
                 tickListModel.append(newTick);
             }
-            console.log("Portofolio is ready.")
+            statusText.text = "Portfolio ready."
         }
     }
 
     Component.onCompleted: {
         dataFile.parse(); // Parse portfolio meta data from local file
         tickList.visible = false;
-        console.log("Loading main page");
+        statusText.text = "Getting data"
+        DataFile.status = statusText;
         DataFile.getData(tickList.model, function(){
             activityIndicator.running = false;
             tickList.visible = true;
+            statusText.text = "ListedView Completed"
         });
     }
 }
