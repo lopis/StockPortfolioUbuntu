@@ -20,42 +20,46 @@ MainView {
     //width: units.gu(66)
     //height: units.gu(106)
 
-
-    Loader {
+    PageStack {
+        id: pageStack
         anchors.fill: parent
-        id: mainLoader
-        property string tickName
-    }
+        property int tickID: -1
+        Component.onCompleted: push(mainPage)
 
-    // Placed the List Model in the root to be globally accessible
-    ListModel {
-        id: tickListModel
-    }
+        // Placed the List Model in the root to be globally accessible
+        ListModel {
+            id: tickListModel
+        }
 
-    FileIO {
-        id: dataFile
-        source: "/home/phablet/.cache/com.ubuntu.joao.StockPortfolioCpp/data"
-        onError: console.log(msg)
-        function parse() {
-            var readString = read();
-            console.log(readString);
-            if (readString === "") {
-                // File empty or not read. Use default values.
-                readString = DataJS.defaultNames;
+        Page {
+            id: mainPage
+            title: "Stocks Portfolio"
+            anchors.fill: parent
+            anchors.topMargin: parent.header.height
+            visible: false;
+            property url up_arrow: Qt.resolvedUrl("graphics/up_arrow.png")
+            property url down_arrow: Qt.resolvedUrl("graphics/down_arrow.png")
+
+            tools: ToolbarItems {
+                locked: false
+                opened: false
+                ToolbarButton {
+                    iconSource: Qt.resolvedUrl("graphics/button_add.svg")
+                    text: "Add New"
+                }
+
+                ToolbarButton {
+                    id: buttonEdit
+                    iconSource: Qt.resolvedUrl("graphics/button_edit.svg")
+                    text: "Manage"
+                    onTriggered: {
+                        buttonEdit.iconSource = Qt.resolvedUrl("graphics/button_add.svg");
+                    }
+                }
             }
 
-            var readValues = readString.split(";");
-            for (var value in readValues) {
-                // console.log("Value: '" + readValues[value] + "'");
-                var splitValue = readValues[value].split(",");
-                var newTick = {};
-                newTick["name"] = splitValue[1];
-                newTick["tickName"] = splitValue[0];
-                newTick["valuesObj"] = [];
-                newTick["raisedPercent"] = "";
-                newTick["normValues"] = [];
-                tickListModel.append(newTick);
-                console.log(JSON.stringify(newTick));
+            ListedView {
+                objectName: "listedView"
             }
         }
     }
@@ -67,9 +71,6 @@ MainView {
             root.width = units.gu(66);
             root.height = units.gu(106);
         }
-        dataFile.parse(); // Parse portfolio meta data from local file
-        console.log(root.height);
-        mainLoader.source = "ListedView.qml";
     }
 
 }

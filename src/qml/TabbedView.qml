@@ -7,16 +7,30 @@ import Ubuntu.Components 0.1
            second Tab has a single ToolbarAction.
 */
 
-Tabs {
-    id: tabbedView
-    width: parent.width
+Page {
+    id: tabbedPage
+    visible: false
+    property string tickID: pageStack.tickID
 
-    PlotTab {
-        width: parent.width
-        objectName: "plotTab"
+    Component.onCompleted: {}
+
+    tools: ToolbarItems {
+        locked: false
+        opened: false
     }
 
-    CompareTab {
-        objectName: "compareTab"
+    Tabs {
+        id: tabbedView
+
+        PlotTab {
+            id: plotTab
+            width: parent.width
+            objectName: "plotTab"
+            property bool isReady : false;
+        }
+
+        CompareTab {
+            objectName: "compareTab"
+        }
     }
 }

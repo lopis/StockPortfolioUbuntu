@@ -22,7 +22,8 @@ var afterReadyCall;
 // Each array represents a series in the plot
 var normValues = [];
 
-function normalizeValues(valuesObj, plotHeight) {
+function normalizeValues(valuesObj) {
+    var plotHeight = 300;
     // console.log("ValuesObj size: " + portfolio[tickName].valuesObj.length)
     for (var i = 0; i < valuesObj.count; i++) {
         if (valuesObj.get(i).close > max) {
@@ -58,10 +59,8 @@ function getData(listModel, afterReady) {
     var monthEnd = 12;
     var dayEnd = 1;
     var yearEnd = 2013;
-
-    console.log("Model count: " + portfolio.listModel.count);
+    console.log("getData: " + portfolio.listModel.count);
     for (var tickID = 0; tickID < portfolio.listModel.count; tickID++){
-        console.log("TickID: " + tickID);
         var tickName = portfolio.listModel.get(tickID).tickName; //FIXME: is fixName defined?
         var url = ["http://ichart.finance.yahoo.com/table.txt?",
         "a=", 		monthBegin,
@@ -89,6 +88,12 @@ function getValues(tickID, url) {
     var doc = new XMLHttpRequest(); // Used for XML, but works for plain text or CSV
     doc.onreadystatechange = function() {
         if (doc.readyState === XMLHttpRequest.DONE) {
+
+            if (doc.responseText === "") {
+                console.log("Connection failed, trying again in 1s.")
+                return false;
+            }
+
             parseCSV(tickID, doc.responseText);
             // console.log(doc.responseText);
             isBusy = false;
