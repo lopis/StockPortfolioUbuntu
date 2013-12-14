@@ -2,7 +2,7 @@ import QtQuick 2.0
 import Ubuntu.Components 0.1
 import Ubuntu.Components.ListItems 0.1 as ListItem
 import FileIO 1.0
-import "data.js" as DataFile
+import "data.js" as DataJS
 
 Rectangle {
     id: listedViewContents
@@ -11,12 +11,19 @@ Rectangle {
     ListView {
         id: tickList
         anchors.fill: parent
+
         model: tickListModel
-        delegate: ListItem.SingleValue {
-            text: " <strong>" + tickName + "</strong> " + (raisedPercent > 0 ? "+" : "") + raisedPercent + "%"
-            iconSource: (raisedPercent > 0 ? mainPage.up_arrow : mainPage.down_arrow)
+        delegate: ListItem.MultiValue {
+            text: name
+            icon: Qt.resolvedUrl(raisedPercent > 0 ? mainPage.up_arrow : mainPage.down_arrow)
             iconFrame: false
-            value: name
+            values: [" <strong>" + tickName +
+                "</strong> " + (raisedPercent > 0 ? "+" : "") +
+                raisedPercent + "% ",
+                numShares + " " +
+                (numShares == 1 ? "share" : "shares") +
+                " (" + valuesObj.get(0).close + ")"
+            ]
             progression: true
             onClicked: {
                 console.log("TickName selected: " + tickName)
@@ -29,15 +36,16 @@ Rectangle {
     ActivityIndicator {
         id: activityIndicator
         running: true
-        visible: running
+        visible: true
         anchors.centerIn: parent
     }
 
     FileIO {
         id: dataFile
-        source: "/home/phablet/.cache/com.ubuntu.joao.StockPortfolioCpp/data"
+        source: "/home/phablet/.cache/com.ubuntu.joao.stockportfolio/data"
         onError: statusText.text = msg
         function parse() {
+            statusText.text = "Parsing file"
             var readString = read();
             if (readString === "" || !readString) {
                 // File empty or not read. Use default values.
@@ -50,10 +58,12 @@ Rectangle {
                 // console.log("Value: '" + readValues[value] + "'");
                 var splitValue = readValues[value].split(",");
                 var newTick = {};
-                newTick["name"] = splitValue[1];
                 newTick["tickName"] = splitValue[0];
+                newTick["name"] = splitValue[1];
                 newTick["valuesObj"] = [];
                 newTick["raisedPercent"] = "";
+                newTick["numShares"] = parseInt(splitValue[2]);
+                newTick["volume"] = 0;
                 newTick["normValues"] = [];
                 newTick["tickID"] = parseInt(value);
                 tickListModel.append(newTick);
@@ -63,14 +73,15 @@ Rectangle {
     }
 
     Component.onCompleted: {
+        statusText.text = "ListedView completed"
         dataFile.parse(); // Parse portfolio meta data from local file
         tickList.visible = false;
         statusText.text = "Getting data"
-        DataFile.status = statusText;
-        DataFile.getData(tickList.model, function(){
+        DataJS.status = statusText;
+        DataJS.getData(tickList.model, function(){
             activityIndicator.running = false;
             tickList.visible = true;
             statusText.text = "ListedView Completed"
-        });
+        }, 1);
     }
 }

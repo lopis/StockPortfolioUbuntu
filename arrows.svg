@@ -17,7 +17,7 @@
    inkscape:export-filename="/home/joaolopes/git/StockPortfolioCpp/src/qml/graphics/add.png"
    inkscape:export-xdpi="22.5"
    inkscape:export-ydpi="22.5"
-   sodipodi:docname="arrows.svg">
+   sodipodi:docname="calendar1.svg">
   <defs
      id="defs4" />
   <sodipodi:namedview
@@ -27,11 +27,11 @@
      borderopacity="1.0"
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
-     inkscape:zoom="1.4"
-     inkscape:cx="47.206259"
-     inkscape:cy="39.270752"
+     inkscape:zoom="2.8"
+     inkscape:cx="20.12115"
+     inkscape:cy="61.50358"
      inkscape:document-units="px"
-     inkscape:current-layer="layer2"
+     inkscape:current-layer="g3013"
      showgrid="false"
      inkscape:window-width="1313"
      inkscape:window-height="744"
@@ -121,7 +121,7 @@
      inkscape:label="Edit"
      id="g4009"
      inkscape:groupmode="layer"
-     style="display:inline">
+     style="display:none">
     <path
        style="fill:none;stroke:#8e8e8e;stroke-width:12;stroke-linecap:square;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;stroke-dashoffset:0"
        d="m 84.506047,13.747131 c 0,0 13.035259,-9.7173522 26.714003,3.961392 13.67874,13.678742 3.96139,26.714002 3.96139,26.714002 l -59.116161,59.116155 -40.365568,9.69018 9.690175,-40.365567 z"
@@ -140,6 +140,68 @@
        id="path4026"
        inkscape:connector-curvature="0"
        sodipodi:nodetypes="czccccc" />
+  </g>
+  <g
+     style="display:inline"
+     inkscape:groupmode="layer"
+     id="g3013"
+     inkscape:label="Calendar">
+    <rect
+       style="fill:#8e8e8e;fill-opacity:1;fill-rule:nonzero;stroke:none"
+       id="rect3815"
+       width="103.54063"
+       height="87.63073"
+       x="10.859139"
+       y="19.913677"
+       ry="8.586297" />
+    <text
+       xml:space="preserve"
+       style="font-size:66.48220062px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:center;line-height:125%;letter-spacing:0px;word-spacing:0px;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none;font-family:FontAwesome;-inkscape-font-specification:FontAwesome"
+       x="60.333942"
+       y="96.191742"
+       id="text3792"
+       sodipodi:linespacing="125%"
+       transform="scale(1.0331285,0.96793381)"><tspan
+         sodipodi:role="line"
+         id="tspan3794"
+         x="60.333942"
+         y="96.191742"
+         style="font-weight:500;text-align:center;text-anchor:middle;fill:#ffffff;font-family:Ubuntu;-inkscape-font-specification:Ubuntu Medium">1</tspan></text>
+    <rect
+       style="fill:#ffffff;fill-opacity:1;fill-rule:nonzero;stroke:none"
+       id="rect3817"
+       width="92.331947"
+       height="12.898293"
+       x="16.463478"
+       y="25.56871"
+       ry="4.5456862" />
+    <rect
+       ry="4.7982197"
+       y="9.9136772"
+       x="25.831234"
+       height="24.748734"
+       width="9.5964394"
+       id="rect3819"
+       style="fill:#8e8e8e;fill-opacity:1;fill-rule:nonzero;stroke:none"
+       rx="4.7982197" />
+    <rect
+       rx="4.7982197"
+       style="fill:#8e8e8e;fill-opacity:1;fill-rule:nonzero;stroke:none"
+       id="rect3821"
+       width="9.5964394"
+       height="24.748734"
+       x="89.831238"
+       y="9.9136772"
+       ry="4.7982197" />
+    <rect
+       ry="4.7982197"
+       y="9.9136772"
+       x="57.831238"
+       height="24.748734"
+       width="9.5964394"
+       id="rect3823"
+       style="fill:#8e8e8e;fill-opacity:1;fill-rule:nonzero;stroke:none"
+       rx="4.7982197" />
   </g>
   <g
      transform="translate(0,-924.36217)"

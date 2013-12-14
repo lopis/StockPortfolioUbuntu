@@ -10,7 +10,6 @@ ListView {
         text: " <strong>" + tickName + "</strong> "
         iconFrame: false
         value: name
-        progression: true
         onClicked: {
             console.log("Tick count: " + (tickListModel.count))
             console.log("TickID: " + tickID)

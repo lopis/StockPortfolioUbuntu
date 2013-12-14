@@ -19,14 +19,17 @@ MainView {
     */
     automaticOrientation: true
 
-    //width: units.gu(66)
-    //height: units.gu(106)
+    width: units.gu(50)
+    height: units.gu(80)
 
     PageStack {
         id: pageStack
         anchors.fill: parent
         property int tickID: -1
-        Component.onCompleted: push(mainPage)
+        Component.onCompleted: {
+            statusText.text = "PageStack completed"
+            push(mainPage)
+        }
 
         // Placed the List Model in the root to be globally accessible
         ListModel {
@@ -45,8 +48,8 @@ MainView {
             anchors.fill: parent
             anchors.topMargin: parent.header.height
             visible: false;
-            property url up_arrow: Qt.resolvedUrl("graphics/up_arrow.png")
-            property url down_arrow: Qt.resolvedUrl("graphics/down_arrow.png")
+            property url up_arrow: "graphics/up_arrow.png"
+            property url down_arrow: "graphics/down_arrow.png"
 
             tools: ToolbarItems {
                 locked: false

@@ -12,8 +12,8 @@ int main(int argc, char *argv[])
 
     QtQuick2ApplicationViewer viewer;
     viewer.setMainQmlFile(QStringLiteral("qml/main.qml"));
-    viewer.showMaximized();
-
+    //viewer.showMaximized();
+    viewer.showExpanded();
 
     return app.exec();
 }
