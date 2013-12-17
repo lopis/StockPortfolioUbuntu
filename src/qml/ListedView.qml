@@ -8,9 +8,20 @@ Rectangle {
     id: listedViewContents
     anchors.fill: parent
 
+    ListItem.Empty {
+        height: 280
+        z: 1
+        
+        PieChart {
+            id: pieChart
+        }
+    }
+
     ListView {
         id: tickList
         anchors.fill: parent
+        anchors.topMargin: 280
+        z: 0
 
         model: tickListModel
         delegate: ListItem.MultiValue {
@@ -82,6 +93,7 @@ Rectangle {
             activityIndicator.running = false;
             tickList.visible = true;
             statusText.text = "ListedView Completed"
+            pieChart.setPieChart(tickList.model);
         }, 1);
     }
 }

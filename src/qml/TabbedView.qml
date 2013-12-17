@@ -78,8 +78,10 @@ Page {
 
     Component {
         id: popCompareAdd
-        ComposerSheet {
+        DefaultSheet {
             id: popoverCompareAdd
+            onVisibleChanged: addCompareField.forceActiveFocus();
+
             Column {
                 anchors {
                     left: parent.left
@@ -108,22 +110,26 @@ Page {
                         visible = true;
                     }
                 }
+
                 ListItem.SingleControl {
                     pressed: false
-                    control: Text {
+                    id: compareButton
+                    control: Button {
                         text: "Compare"
-                    }
-                    onClicked: {
-                        statusText.text = "Searching for " + addCompareField.text
-                        var newTickName = addCompareField.text.toUpperCase();
-                        var err = compareTab.addCompare(newTickName);
-                        if(err !== ""){
-                            compareAddStatus.setStatus(err);
-                        } else {
-                            PopupUtils.close(popoverCompareAdd);
+                        onClicked: {
+                            statusText.text = "Searching for " + addCompareField.text
+                            var newTickName = addCompareField.text.toUpperCase();
+                            var err = compareTab.addCompare(newTickName);
+                            if(err !== ""){
+                                compareAddStatus.visible = true;
+                                compareAddStatus.setStatus(err);
+                            } else {
+                                PopupUtils.close(popoverCompareAdd);
+                            }
                         }
                     }
                 }
+
             }
         }
     }

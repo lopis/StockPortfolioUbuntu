@@ -51,10 +51,24 @@ var plotHeight = 280; // Hack :/
 //    normValues.push(values);
 //}
 
+// Receives long date 2013-12-30
+// Returns short date Dez 30
+var months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun",
+              "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+function longDate2Short (dateStr){
+    var d = new Date(dateStr);
+    return months[d.getMonth()] + " " + d.getDate();
+}
+
 function normalizeValuesMany(listModel) {
     normValues = [];
-    dates[0] = listModel.get(0).valuesObj.get(0).date;
-    dates[1] = listModel.get(0).valuesObj.get(listModel.get(0).valuesObj.count-1).date;
+
+    var listCount = listModel.get(0).valuesObj.count;
+    dates[0] = longDate2Short(listModel.get(0).valuesObj.get(0).date);
+    dates[1] = longDate2Short(listModel.get(0).valuesObj.get(listCount * 0.25).date);
+    dates[2] = longDate2Short(listModel.get(0).valuesObj.get(listCount * 0.50).date);
+    dates[3] = longDate2Short(listModel.get(0).valuesObj.get(listCount * 0.75).date);
+    dates[4] = longDate2Short(listModel.get(0).valuesObj.get(listCount - 2).date);
     for(var item = 0; item < listModel.count; item++){
         for (var i = 0; i < listModel.get(item).valuesObj.count; i++) {
             if (listModel.get(item).valuesObj.get(i).close > max) {
@@ -91,7 +105,6 @@ function getData(listModel, afterReady, numOfMonths) {
     var monthEnd = date.getMonth();
     var dayEnd = date.getDate();
     var yearEnd = date.getFullYear();
-    console.log("date: " + date);
     for (var tickID = 0; tickID < portfolio.listModel.count; tickID++){
         portfolio.listModel.get(tickID).valuesObj.clear();
         var tickName = portfolio.listModel.get(tickID).tickName; //FIXME: is tickName defined?
@@ -105,6 +118,36 @@ function getData(listModel, afterReady, numOfMonths) {
         "&g=d&s=", 	tickName].join("");
         loadData(tickID, url);
     }
+}
+
+// Test if tickname is valid
+function testData(tickName, afterReady) {
+    // Load the data from the file or server.
+    var date = new Date();
+    var earlierDate = new Date;
+    earlierDate.setDate(date.getDate() - 1);
+    var monthBegin = earlierDate.getMonth();
+    var dayBegin = earlierDate.getDate();
+    var yearBegin = earlierDate.getFullYear();
+    var monthEnd = date.getMonth();
+    var dayEnd = date.getDate();
+    var yearEnd = date.getFullYear();
+    var url = ["http://ichart.finance.yahoo.com/table.txt?",
+    "a=", 		monthBegin,
+    "&b=", 		dayBegin,
+    "&c=", 		yearBegin,
+    "&d=", 		monthEnd,
+    "&e=", 		dayEnd,
+    "&f=", 		yearEnd,
+    "&g=d&s=", 	tickName].join("");
+    var doc = new XMLHttpRequest();
+    doc.onreadystatechange = function() {
+        afterReady(doc);
+    }
+    console.log("test url: " + url);
+    doc.open("get", url);
+    doc.setRequestHeader("Content-Encoding", "UTF-8");
+    doc.send();
 }
 
 function loadData(tickID, url) {

@@ -55,8 +55,12 @@ MainView {
                 locked: false
                 opened: false
                 ToolbarButton {
+                    id: buttonAdd
                     iconSource: Qt.resolvedUrl("graphics/button_add.svg")
                     text: "Add New"
+                    onTriggered: {
+                        PopupUtils.open(popListAdd, buttonAdd)
+                    }
                 }
 
                 ToolbarButton {
@@ -110,6 +114,119 @@ MainView {
                                 PopupUtils.close(popover)
                             }
                         }
+                    }
+                }
+            }
+
+            Component {
+                id: popListAdd
+                DefaultSheet {
+                    onVisibleChanged: addCompareTitle.forceActiveFocus();
+                    id: popListAddSheet
+                    Column {
+                        anchors {
+                            left: parent.left
+                            top: parent.top
+                            right: parent.right
+                        }
+                        ListItem.Header {
+                            text: "Add Tick Name"
+                        }
+                        ListItem.SingleControl {
+                            pressed: false
+                            control: TextField {
+                                id: addCompareTitle
+                                placeholderText: "Title e.g. Amazon"
+                            }
+                        }
+                        ListItem.SingleControl {
+                            pressed: false
+                            control: TextField {
+                                id: addCompareField
+                                placeholderText: "Tick Name e.g. AMZN"
+                            }
+                        }
+                        ListItem.SingleControl {
+                            pressed: false
+                            control: TextField {
+                                id: addCompareShares
+                                placeholderText: "Number of shares"
+                            }
+                        }
+                        ListItem.SingleControl {
+                            id: compareAddStatus
+                            pressed: false
+                            visible: false
+                            control: Text {
+                                text: "<no status>"
+                            }
+                            function setStatus(str) {
+                                control.text = str;
+                                visible = true;
+                            }
+                        }
+
+                        ListItem.SingleControl {
+                            pressed: false
+                            id: compareButton
+                            property bool safetySwitch: true
+                            control: Button {
+                                text: "Add"
+                                onClicked: {
+                                    if (compareButton.safetySwitch) {
+                                        compareButton.safetySwitch = false;
+                                        statusText.text = "Searching for " + addCompareField.text
+                                        var newTickTitle = addCompareTitle.text;
+                                        var newTickName = addCompareField.text.toUpperCase();
+                                        var err = "";
+                                        if (newTickName == "" || newTickTitle == "" || addCompareShares < 0) {
+                                            err = "All fields required";
+                                        } else {
+                                            for (var i =0; i < tickListModel.count; i++) {
+                                                if (tickListModel.get(i).tickName === newTickName){
+                                                    err = "Already in list: " + newTickName;
+                                                }
+                                            }
+                                        }
+                                        if (err == "") {
+                                            var newTick = {};
+                                            newTick["tickName"] = newTickName;
+                                            newTick["name"] = newTickTitle;
+                                            newTick["valuesObj"] = [];
+                                            newTick["raisedPercent"] = "";
+                                            newTick["numShares"] = parseInt(addCompareShares.text);
+                                            newTick["volume"] = 0;
+                                            newTick["normValues"] = [];
+                                            newTick["tickID"] = parseInt(tickListModel.count);
+
+                                            DataJS.testData(newTickName, function(doc){
+                                                if (doc.readyState === XMLHttpRequest.DONE || doc.responseText === "") {
+                                                    statusText.text = "Failed to fetch";
+                                                    return false;
+                                                } else {
+                                                    for (var i =0; i < tickListModel.count; i++) {
+                                                        if (tickListModel.get(i).tickName === newTickName){
+                                                            console.log("Already in list: " + newTickName);
+                                                        }
+                                                    }
+                                                    //tickListModel.append(newTick);
+                                                    DataJS.getData(tickListModel, function(){
+                                                        activityIndicator.running = false;
+                                                        tickList.visible = true;
+                                                        statusText.text = "ListedView Updated";
+                                                        PopupUtils.close(popListAddSheet);
+                                                    }, 1);
+                                                }
+                                            });
+                                        } else {
+                                            compareAddStatus.visible = true;
+                                            compareAddStatus.setStatus(err);
+                                        }
+                                    }
+                                }
+                            }
+                        }
+
                     }
                 }
             }

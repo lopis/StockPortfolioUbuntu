@@ -4,7 +4,7 @@ import Ubuntu.Components.ListItems 0.1 as ListItem
 import "data.js" as DataFile
 
 Tab {
-    title: i18n.tr("Portfolio")
+    title: ""
     width: parent.width
 
     id: plotPage
@@ -12,7 +12,9 @@ Tab {
     property url up_arrow: Qt.resolvedUrl("/home/phablet/.cache/com.ubuntu.joao.stockportfolio/graphics/up_arrow.png")
     property url down_arrow: Qt.resolvedUrl("/home/phablet/.cache/com.ubuntu.joao.stockportfolio/graphics/down_arrow.png")
 
-    Component.onCompleted: {}
+    Component.onCompleted: {
+        title = tickListModel.get(tickID).name;
+    }
 
     function setLoading(loading) {
         plotActivityIndicator.visible = loading;
@@ -35,6 +37,7 @@ Tab {
             onClicked: {
                 plotCanvas.setTouch(plotMouseArea.mouseX, plotMouseArea.mouseY)
                 var selectedIndex = plotCanvas.touchIndex;
+                console.log(tickListModel.get(tickID).valuesObj.get(selectedIndex).date);
                 if (selectedIndex < 1) selectedIndex = 1;
                 var curVal = tickListModel.get(tickID).valuesObj.get(selectedIndex).close;
                 var oldVal = tickListModel.get(tickID).valuesObj.get(selectedIndex-1).close;

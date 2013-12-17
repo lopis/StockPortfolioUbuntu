@@ -22,7 +22,7 @@ Canvas {
     property int touchIndex : -1 // updated after touchX
     property string tickID : pageStack.tickID
     property variant strokeColors : [
-        "#149cdc","#dc4814","#14dc64","#dc1445","#5114dc"
+        "#149cdc","#77216F","#dc4814","#14dc64","#dc1445"
     ]
 
     function normalizeValues(model) {
@@ -36,8 +36,9 @@ Canvas {
     }
 
     function setTouch(x, y) {
-        canvas.touchIndex = Math.round(canvas.plotStep * (canvas.width-x) / canvas.width);
-        console.log("Touch detected " + "(index " + touchIndex +")");
+        x = x * (canvas.width / (canvas.width - 60)) - 10;
+        var l = DataFile.normValues[0].length - 1;
+        canvas.touchIndex = l - Math.round(l * x / canvas.width);
         canvas.touchX = canvas.width - touchIndex * canvas.plotStep;
         canvas.touchY = Math.round(canvas.plotStep * y / canvas.width) * canvas.plotStep;
         canvas.requestPaint();
@@ -57,19 +58,19 @@ Canvas {
 
     onPaint: {
         if (!tickID || tickID == "" || tickID == undefined){
-            console.log("TickID is not defined");
+            //console.log("TickID is not defined");
             return;
         }
 
         if (DataFile.normValues.length < 1 ) {
-            console.log("Normalizing values for " + pageStack.tickID);
+            //console.log("Normalizing values for " + pageStack.tickID);
             DataFile.normalizeValuesMany(compareListModel); //tickListModel.get(tickID).valuesObj
-            console.log("Normalized count: " + DataFile.normValues[0].length);
+            //console.log("Normalized count: " + DataFile.normValues[0].length);
         }
 
-        if (canvas.plotStep === 0.0) {
-            console.log("Updated plot step");
+        if (canvas.plotStep === 0) {
             canvas.plotStep = canvas.width / (DataFile.normValues[0].length-1);
+            //console.log("Updated plot step: " + canvas.plotStep);
         }
 
         var ctx = canvas.getContext('2d');
@@ -80,18 +81,28 @@ Canvas {
         gradient.addColorStop(1.0, "#B6EFFF");
         ctx.fillStyle = gradient;
         ctx.fillRect(0, 0, canvas.width, canvas.height);
-        ctx.translate(10, 10);
         ctx.lineWidth = 2;
-        ctx.scale(canvas.scaleX-20/canvas.width, canvas.scaleY-30/canvas.height);
+        ctx.scale(canvas.scaleX, canvas.scaleY);
         ctx.rotate(canvas.rotate);
+        // Horizontal dates
+        var dateX = canvas.width - 50;
+        ctx.fillStyle = "#00A4D4";
+        ctx.strokeStyle = "#B6EFFF";
+        ctx.font = "5pt sans-serif";
+        ctx.fillText(DataFile.dates[4], 0 + 10, canvas.height - 6);
+        ctx.textAlign = 'center';
+        ctx.fillText(DataFile.dates[3], dateX*0.25 + 15, canvas.height - 6);
+        ctx.fillText(DataFile.dates[2], dateX*0.50 + 5, canvas.height - 6);
+        ctx.fillText(DataFile.dates[1], dateX*0.75 - 5, canvas.height - 6);
+        ctx.textAlign = 'right';
+        ctx.fillText(DataFile.dates[0], dateX, canvas.height - 7);
+        ctx.translate(10, 10);
+        ctx.scale(canvas.scaleX-60/canvas.width, canvas.scaleY-30/canvas.height);
 
         // Draw plot
         ctx.globalAlpha = 1.0;
         ctx.lineWidth = 1.0;
-
-        console.log("num values drawing: " + DataFile.normValues.length);
         for (var i = 0; i < DataFile.normValues.length; i++){
-            console.log("Drawing curve #" + i);
             ctx.strokeStyle = strokeColors[i%strokeColors.length];
             ctx.beginPath();
             var values = DataFile.normValues[i];
@@ -99,10 +110,11 @@ Canvas {
             var y = canvas.height - values[0];
             ctx.moveTo(x , y);
             ctx.translate(0.5,0.5);
+            //console.log(i + ") num values drawing: " + values.length);
             for (var point = 1; point < values.length; point++) {
                 y = canvas.height - values[point];
                 x += canvas.plotStep;
-                //console.log(i + ": " + x + ";" + y);
+                ////console.log(i + ": " + x + ";" + y);
                 ctx.lineTo(Math.round(x), y);
             }
             ctx.lineTo(canvas.width, canvas.height);
@@ -112,7 +124,7 @@ Canvas {
             if(i==0) ctx.fill();
             ctx.stroke();
         }
-        console.log("Finished curves");
+        //console.log("Finished curves");
 
         ctx.strokeStyle = "#6CDEFF";
         // Draw grid box
@@ -151,33 +163,28 @@ Canvas {
         ctx.stroke();
 
         // Draw selection lines
-        if (touchIndex > 0) {
+        if (touchIndex >= 0) {
             ctx.beginPath();
-            ctx.strokeStyle = "#8899EE";
+            ctx.strokeStyle = "#EE9988";
             ctx.moveTo(canvas.touchX, 0);
             ctx.lineTo(canvas.touchX, canvas.height);
             ctx.stroke();
         }
 
         // Draw text
-        ctx.textAlign = 'center';
         ctx.beginPath();
         // Vertical values
-        ctx.text((DataFile.max).toFixed(2), 0, 5);
-        ctx.text((DataFile.min*0.25 + DataFile.max*0.75).toFixed(2), 0, 5*0.75 + (canvas.height + 5)*0.25);
-        ctx.text((DataFile.min*0.5 + DataFile.max*0.5).toFixed(2), 0, 5*0.5 + (canvas.height + 5)*0.5);
-        ctx.text((DataFile.min*0.75 + DataFile.max*0.25).toFixed(2), 0, 5*0.25 + (canvas.height + 5)*0.75);
-        ctx.text((DataFile.min).toFixed(2), 0, canvas.height + 5);
-        // Horizontal dates
-
-
-
+        ctx.text((DataFile.max).toFixed(2), 10 + canvas.width, 10);
+        ctx.text((DataFile.min*0.25 + DataFile.max*0.75).toFixed(2), 10 + canvas.width, 5*0.75 + (canvas.height + 5)*0.25);
+        ctx.text((DataFile.min*0.5 + DataFile.max*0.5).toFixed(2), 10 + canvas.width, 5*0.5 + (canvas.height + 5)*0.5);
+        ctx.text((DataFile.min*0.75 + DataFile.max*0.25).toFixed(2), 10 + canvas.width, 5*0.25 + (canvas.height + 5)*0.75);
+        ctx.text((DataFile.min).toFixed(2), 10 + canvas.width, canvas.height);
         ctx.strokeStyle = "#B6EFFF";
         ctx.lineWidth = 3;
-        ctx.stroke();
+        //ctx.stroke();
         ctx.fillStyle = "#00A4D4";
         ctx.fill();
-        ctx.fillText(DataFile.dates[0], canvas.width*0.25 - 5, canvas.height + 10);
+
         ctx.restore();
     }
 

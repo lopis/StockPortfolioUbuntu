@@ -15,7 +15,8 @@ Tab {
 
     Component.onCompleted: {
         tickListModel.get(tickID)["plotID"] = 0;
-        compareList.model.append(tickListModel.get(tickID));
+        compareList.addCompare(tickListModel.get(tickID));
+
     }
 
     function setLoading(loading) {
@@ -35,7 +36,7 @@ Tab {
         for (i = 0; i < tickListModel.count; i++) {
             if (tickListModel.get(i).tickName === newTickName) {
                 tickListModel.get(i)["plotID"] = compareList.model.count;
-                compareList.model.append(tickListModel.get(i));
+                compareList.addCompare(tickListModel.get(i));
                 plotCanvas.normalizeValues(compareList.model);
                 statusText.text = "Added to compare: " + newTickName
                 tabbedView.selectedTabIndex = 1;
@@ -53,6 +54,7 @@ Tab {
 
         ListItem.Empty {
             height: 280
+            z: 1
             PlotCanvas {
                 id: plotCanvas
             }
@@ -71,13 +73,21 @@ Tab {
             model: compareListModel
             anchors.fill: parent
             anchors.topMargin: 280
+            z: 0
             property variant strokeColors : [
                 "#149cdc","#dc4814","#14dc64","#dc1445","#5114dc"
             ]
+
+            function addCompare(obj) {
+                obj["lineIconIndex"] = compareListModel.count;
+                compareListModel.append(obj);
+            }
+
             delegate: ListItem.MultiValue {
                 text: name
                 icon: (raisedPercent > 0 ? plotPage.up_arrow : plotPage.down_arrow)
                 iconFrame: false
+                property int lineIcon: lineIconIndex
                 values: [" <strong>" + tickName +
                     "</strong> " + (raisedPercent > 0 ? "+" : "") +
                     raisedPercent + "% ",
@@ -95,6 +105,21 @@ Tab {
                             return;
                         }
                     }
+                }
+
+                Image {
+                    property variant strokeIcons :[
+                        "line_blue.svg",
+                        "line_aubergine.svg",
+                        "line_orange.svg",
+                        "line_pink.svg",
+                        "line_green.svg",
+                    ]
+                    property string graphicsPath: "/home/phablet/.cache/com.ubuntu.joao.stockportfolio/graphics/"
+                    height: parent.height
+                    width: parent.height
+                    source: Qt.resolvedUrl(graphicsPath + strokeIcons[lineIconIndex])
+                    anchors.right: parent.right
                 }
             }
         }
