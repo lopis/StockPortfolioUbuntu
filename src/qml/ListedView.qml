@@ -41,6 +41,20 @@ Rectangle {
                 pageStack.tickID = tickID;
                 pageStack.push(Qt.resolvedUrl("TabbedView.qml"));
             }
+            Image {
+                property variant strokeIcons :[
+                    "line_blue.svg",
+                    "line_aubergine.svg",
+                    "line_orange.svg",
+                    "line_green.svg",
+                    "line_pink.svg",
+                ]
+                property string graphicsPath: "/home/phablet/.cache/com.ubuntu.joao.stockportfolio/graphics/"
+                height: parent.height
+                width: parent.height
+                source: Qt.resolvedUrl(graphicsPath + strokeIcons[tickID])
+                anchors.right: parent.right
+            }
         }
     }
 
@@ -61,23 +75,31 @@ Rectangle {
             if (readString === "" || !readString) {
                 // File empty or not read. Use default values.
                 statusText.text = "User data file not found. Using default."
+                console.log("User data file not found. Using default.");
                 readString = DataJS.defaultNames;
+                return;
             }
 
             var readValues = readString.split(";");
             for (var value in readValues) {
-                // console.log("Value: '" + readValues[value] + "'");
+                console.log("Value: '" + readValues[value] + "'");
                 var splitValue = readValues[value].split(",");
                 var newTick = {};
-                newTick["tickName"] = splitValue[0];
-                newTick["name"] = splitValue[1];
-                newTick["valuesObj"] = [];
-                newTick["raisedPercent"] = "";
-                newTick["numShares"] = parseInt(splitValue[2]);
-                newTick["volume"] = 0;
-                newTick["normValues"] = [];
-                newTick["tickID"] = parseInt(value);
-                tickListModel.append(newTick);
+                if (splitValue.length === 3 &&
+                        splitValue[0] !== "" &&
+                        splitValue[1] !== "" &&
+                        parseInt(splitValue[2]))
+                {
+                    newTick["tickName"] = splitValue[0];
+                    newTick["name"] = splitValue[1];
+                    newTick["valuesObj"] = [];
+                    newTick["raisedPercent"] = "";
+                    newTick["numShares"] = parseInt(splitValue[2]);
+                    newTick["volume"] = 0;
+                    newTick["normValues"] = [];
+                    newTick["tickID"] = parseInt(value);
+                    tickListModel.append(newTick);
+                }
             }
             statusText.text = "Portfolio ready."
         }
@@ -92,8 +114,11 @@ Rectangle {
         DataJS.getData(tickList.model, function(){
             activityIndicator.running = false;
             tickList.visible = true;
-            statusText.text = "ListedView Completed"
-            pieChart.setPieChart(tickList.model);
+            setPieCHart();
         }, 1);
+    }
+
+    function setPieCHart() {
+        pieChart.setPieChart(tickList.model);
     }
 }

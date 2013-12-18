@@ -5,6 +5,8 @@ Canvas {
     id: pieCanvas
     width: root.width
     height: parent.height
+    antialiasing: true
+
     property double radius: 0
     property double margin: 0
     property double centerX: 100
@@ -19,10 +21,14 @@ Canvas {
     property real scaleY : 1.0
     property real rotate : 0.0
     property variant strokeColors : [
-        "#149cdc","#77216F","#dc4814","#14dc64","#dc1445"
+        "#149cdc", //blue
+        "#77216F", //aubergine
+        "#dc4814", //orange
+        "#14dc64", //green
+        "#dc1445"  //pink
     ]
     property variant fillColors : [
-        "#9BDFFF","#FFB0F8","#FFC1AB","#B6FFD3","#FFADC1"
+        "#9BDFFF","#D5B0FF","#FFC1AB","#B6FFD3","#FFADC1"
     ]
 
     ListModel {
@@ -31,6 +37,7 @@ Canvas {
 
 
     function setPieChart(listModel) {
+        pieListModel.clear();
         var totalShares = 0; // Total number of shares
         var values = {}; // Pairs
         for (var i = 0; i < listModel.count; i++) {
@@ -38,11 +45,10 @@ Canvas {
         }
         console.log("totalShares: " + totalShares);
         for (i = 0; i < listModel.count; i++) {
-            console.log("Rads: " + 2*Math.PI * listModel.get(i).numShares / totalShares);
             pieListModel.append({
-                                    "tickName": listModel.get(i).tickName,
-                                    "shares": listModel.get(i).numShares,
-                                    "rads": 2*Math.PI * listModel.get(i).numShares / totalShares
+                "tickName": listModel.get(i).tickName,
+                "shares": listModel.get(i).numShares,
+                "rads": 2*Math.PI * listModel.get(i).numShares / totalShares
             });
         }
 
@@ -57,11 +63,8 @@ Canvas {
 
         var ctx = pieCanvas.getContext('2d');
         ctx.beginPath();
-        console.log("Move to: " + centerX + " " + centerY);
         ctx.moveTo(centerX , centerY);
-        console.log("Line to: " + (centerX + radius*Math.sin(startRad)) + " " + (centerY + radius*Math.cos(startRad)));
         ctx.lineTo(centerX + radius*Math.cos(startRad), centerY + radius*Math.sin(startRad));
-        console.log("Arc: " + centerX + " " + centerY + " " + radius + " " + startRad + " " + endRad);
         ctx.arc(centerX , centerY, radius, startRad, endRad)
         ctx.lineTo(centerX , centerY);
         ctx.fill();
@@ -84,16 +87,21 @@ Canvas {
         var ctx = pieCanvas.getContext('2d');
         ctx.save();
         ctx.globalAlpha = 1.0;
+        var gradient = ctx.createLinearGradient(0, 0, 0, pieCanvas.height);
+        gradient.addColorStop(0.0, "#DBF7FF");
+        gradient.addColorStop(1.0, "#B6EFFF");
+        ctx.fillStyle = gradient;
+        ctx.fillRect(0, 0, pieCanvas.width, pieCanvas.height);
         ctx.lineWidth = 1;
         ctx.scale(pieCanvas.scaleX, pieCanvas.scaleY);
         ctx.rotate(pieCanvas.rotate);
         //ctx.fillRect(0, 0, pieCanvas.width, pieCanvas.height);
         var rads = 0;
         for (var i = 0; i < pieListModel.count; i++) {
-
             ctx.strokeStyle = strokeColors[i];
             ctx.fillStyle = fillColors[i];
             slice(ctx, rads, rads + pieListModel.get(i).rads);
+
             rads += pieListModel.get(i).rads;
         }
 

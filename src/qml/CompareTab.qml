@@ -112,8 +112,8 @@ Tab {
                         "line_blue.svg",
                         "line_aubergine.svg",
                         "line_orange.svg",
-                        "line_pink.svg",
                         "line_green.svg",
+                        "line_pink.svg"
                     ]
                     property string graphicsPath: "/home/phablet/.cache/com.ubuntu.joao.stockportfolio/graphics/"
                     height: parent.height

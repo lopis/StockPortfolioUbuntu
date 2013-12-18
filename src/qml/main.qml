@@ -22,6 +22,12 @@ MainView {
     width: units.gu(50)
     height: units.gu(80)
 
+    FileIO {
+        id: dataFile
+        source: "/home/phablet/.cache/com.ubuntu.joao.stockportfolio/data"
+        onError: statusText.text = msg
+    }
+
     PageStack {
         id: pageStack
         anchors.fill: parent
@@ -34,6 +40,17 @@ MainView {
         // Placed the List Model in the root to be globally accessible
         ListModel {
             id: tickListModel
+
+            onCountChanged: {
+                var str = ""
+                // MSFT,Microsoft,12;
+                for(var i = 0; i < count; i++) {
+                    str += get(i).tickName + "," +
+                            get(i).name + "," +
+                            get(i).numShares + ";"
+                }
+                dataFile.write(str);
+            }
         }
 
         Text {
@@ -181,10 +198,14 @@ MainView {
                                         var err = "";
                                         if (newTickName == "" || newTickTitle == "" || addCompareShares < 0) {
                                             err = "All fields required";
+                                            compareButton.safetySwitch = true;
+                                            return;
                                         } else {
                                             for (var i =0; i < tickListModel.count; i++) {
                                                 if (tickListModel.get(i).tickName === newTickName){
                                                     err = "Already in list: " + newTickName;
+                                                    compareButton.safetySwitch = true;
+                                                    return;
                                                 }
                                             }
                                         }
@@ -193,28 +214,35 @@ MainView {
                                             newTick["tickName"] = newTickName;
                                             newTick["name"] = newTickTitle;
                                             newTick["valuesObj"] = [];
-                                            newTick["raisedPercent"] = "";
+                                            newTick["raisedPercent"] = 0.0;
                                             newTick["numShares"] = parseInt(addCompareShares.text);
                                             newTick["volume"] = 0;
                                             newTick["normValues"] = [];
-                                            newTick["tickID"] = parseInt(tickListModel.count);
+                                            newTick["tickID"] = tickListModel.count;
 
                                             DataJS.testData(newTickName, function(doc){
-                                                if (doc.readyState === XMLHttpRequest.DONE || doc.responseText === "") {
-                                                    statusText.text = "Failed to fetch";
-                                                    return false;
-                                                } else {
+                                                if (doc.readyState === XMLHttpRequest.DONE) {
+                                                    if(doc.status !== 200) {
+                                                        compareAddStatus.visible = true;
+                                                        compareAddStatus.setStatus("Couldn't find " + newTickName);
+                                                        compareButton.safetySwitch = true;
+                                                        return false;
+                                                    }
+
                                                     for (var i =0; i < tickListModel.count; i++) {
                                                         if (tickListModel.get(i).tickName === newTickName){
                                                             console.log("Already in list: " + newTickName);
+                                                            compareButton.safetySwitch = true;
+                                                            return false;
                                                         }
                                                     }
-                                                    //tickListModel.append(newTick);
+                                                    tickListModel.append(newTick);
                                                     DataJS.getData(tickListModel, function(){
-                                                        activityIndicator.running = false;
-                                                        tickList.visible = true;
-                                                        statusText.text = "ListedView Updated";
+                                                        //activityIndicator.running = false;
+                                                        //tickList.visible = true;
+                                                        //statusText.text = "ListedView Updated";
                                                         PopupUtils.close(popListAddSheet);
+                                                        listedView.setPieCHart();
                                                     }, 1);
                                                 }
                                             });
@@ -223,6 +251,7 @@ MainView {
                                             compareAddStatus.setStatus(err);
                                         }
                                     }
+                                    compareButton.safetySwitch = true;
                                 }
                             }
                         }
@@ -248,13 +277,13 @@ MainView {
             }
 
             ListedView {
-                objectName: "listedView"
+                id: listedView
             }
         }
     }
 
     Component.onCompleted: {
-        statusText.text = "Main completed"
+        //statusText.text = "Main completed"
     }
 
 }

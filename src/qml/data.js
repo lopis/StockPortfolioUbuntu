@@ -2,7 +2,7 @@
 // assync return of values.
 var portfolio = {listModel: {}};
 
-var defaultNames = "MSFT,Microsoft,1;AMZN,Amazon,1;AAPL,Apple,1";
+var defaultNames = "MSFT,Microsoft,1"; //";AMZN,Amazon,1;AAPL,Apple,1";
 
 // max and min value calculated for the chart
 var max = 0.0;
@@ -93,7 +93,10 @@ function normalizeValuesMany(listModel) {
  * Will populate the listModel with
  */
 function getData(listModel, afterReady, numOfMonths) {
+    schedule = [];
     portfolio.listModel = listModel;
+    console.log("Model count: " + listModel.count);
+    console.log("portfolio count: " + portfolio.listModel.count);
     afterReadyCall = afterReady;
     // Load the data from the file or server.
     var date = new Date();
@@ -125,7 +128,7 @@ function testData(tickName, afterReady) {
     // Load the data from the file or server.
     var date = new Date();
     var earlierDate = new Date;
-    earlierDate.setDate(date.getDate() - 1);
+    earlierDate.setDate(date.getDate() - 5);
     var monthBegin = earlierDate.getMonth();
     var dayBegin = earlierDate.getDate();
     var yearBegin = earlierDate.getFullYear();
@@ -153,7 +156,7 @@ function testData(tickName, afterReady) {
 function loadData(tickID, url) {
     if (!isBusy) {
         isBusy = true;
-        console.log("url: " + url);
+        //console.log("url: " + url);
         getValues(tickID, url);
     } else {
         schedule.push([tickID, url]);
@@ -172,15 +175,18 @@ function getValues(tickID, url) {
             }
 
             parseCSV(tickID, doc.responseText);
-            // console.log(doc.responseText);
+            if (tickID == 3) {
+                console.log(url);
+            }
+
             isBusy = false;
 
             if (schedule.length > 0){
-                // console.log("Still busy");
+                //console.log("Still busy");
                 var next = schedule.pop();
                 loadData(next[0], next[1], next[2]);
             } else {
-                // console.log("Ready.");
+                //console.log("Ready.");
                 isReady = true;
                 afterReadyCall();
             }
@@ -193,7 +199,7 @@ function getValues(tickID, url) {
 
 function parseCSV(tickID, csvString) {
     var linesArray = csvString.split("\n");
-    statusText.text = "Parsing: " + portfolio.listModel.get(tickID).tickName + "(" + portfolio.listModel.get(tickID).valuesObj.count + ")";
+    // statusText.text = "Parsing: " + portfolio.listModel.get(tickID).tickName + "(" + portfolio.listModel.get(tickID).valuesObj.count + ")";
     // Starts in line=1 to ignore CSV header
     for (var line = 1; line < linesArray.length-1; line++) {
         var lineArray = linesArray[line].split(",");
@@ -209,4 +215,5 @@ function parseCSV(tickID, csvString) {
     var curVal = portfolio.listModel.get(tickID).valuesObj.get(0).close;
     var oldVal = portfolio.listModel.get(tickID).valuesObj.get(1).close;
     portfolio.listModel.get(tickID).raisedPercent = (100*(curVal-oldVal)/oldVal).toFixed(2);
+    //console.log("Parsed " + portfolio.listModel.get(tickID).tickName);
 }
